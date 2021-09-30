@@ -1,0 +1,98 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}
+    listing
+{% endblock %}
+
+{% block body %}
+    <div class="card-deck">
+        <div class="card">
+            <img src="{{ listing.imageUrl }}" alt="">
+        </div>
+        <div class="card ">
+        <div class="card-body ">
+            <h4 class="card-title">{{ listing.title }}</h4>
+            <h5 class="card-subtitle mb-2 text-muted">Current Prize: 
+                {% if listing.currentBid %}
+                    ${{listing.currentBid}}
+                {% else %}
+                    ${{listing.startingBid}}
+                {% endif %}</h5>
+             
+            <p class="card-text">{{ listing.description }}</p>
+
+            {% if listing.is_watched %}
+            <a href="{% url 'watch' listing.id %}" class="btn btn-outline-primary mb-2">Remove Watchlist</a>
+            {% else %}
+            <a href="{% url 'watch' listing.id %}" class="btn btn-outline-primary mb-2">Add to Watchlist</a>
+            {% endif %}
+
+            {% if request.user == listing.creator and listing.flactive %}
+                <a href="{% url 'closeAuction' listing.id %}" class="btn btn-outline-danger mb-2">Close bid</a>
+            {% endif %}
+
+            
+                {% if listing.buyer is not None %}
+                <div class="alert alert-primary" role="alert">
+                    {% if request.user == listing.creator %}
+                        You Sold this item to <strong>{{listing.buyer}}</strong>
+                    {% elif request.user == listing.buyer %}
+                        You <strong>won</strong>  this auctions
+                    {% else %}
+                        Item  <strong>Sold Out!</strong> 
+                    {% endif %}    
+                </div>
+                <br>
+                {% endif %}
+            
+            
+
+
+            {% if error_msg %}
+                <div class="alert alert-danger" role="alert">Bid should be greater than current bid</div>
+            {% endif %}
+            
+            
+            {% if listing.buyer is None %}
+            <br>
+            {{bidcount}} bid(s) so far.{% if listing.yourBid %}Your bid is current bid.{% endif %}
+            <form action="{% url 'bid' listing.id %}" method="POST">
+                {% csrf_token %}
+                {{ BidForm }}
+                <input class="btn btn-primary mt-2" type="submit" value="Place Bid">
+            </form>
+            {% endif %}
+
+            <h5>Details</h5>
+            <ul>
+                <li>Starting bid: <strong>$ {{listing.startingBid}}</strong></li>
+                <li>Listed by: <strong>{{listing.creator}}</strong></li>
+                <li>Category: {{listing.category}}</li>
+                <li>Created: {{listing.created_date}}</li>
+            </ul>
+            
+            
+                
+                
+            
+        </div>
+        </div>
+    </div>
+
+    <h3>Comments:</h3>
+            <form action="{% url 'comment' listing.id %}" method="POST">
+                {% csrf_token %}
+                {{ commentForm.as_p }}
+                <input type="submit" class="btn btn-primary">
+            </form>
+            {% for comment in comments %}
+    <div class="card">
+        
+        <div class="card-body">
+            <strong>{{comment.user}}</strong> <span class="text-muted"><small>{{comment.createdDate}}</small></span>
+          <p class="card-text">{{comment.comment}}</p>
+        </div>
+      </div>
+      {% endfor %}
+
+{% endblock %}

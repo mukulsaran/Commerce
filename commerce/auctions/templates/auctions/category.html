@@ -1,0 +1,13 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}
+    Category
+{% endblock %}
+
+{% block body %}
+    {% for category in categorys %}
+    <div class="d-grid gap-2 col-6 mx-auto mb-2">
+        <a class="btn btn-primary" href="{% url 'category_view' category.id %}" role="button">{{ category }}</a>
+      </div>
+    {% endfor %}
+{% endblock%}
